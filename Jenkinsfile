@@ -9,19 +9,30 @@ properties([
 ])
 
 podTemplate(
-    label: label,
-    nodeSelector: 'role=workers'
+  label: label,
+  containers: [
+    containerTemplate(name: 'docker',
+                      image: 'docker:latest',
+                      ttyEnabled: true,
+                      command: 'cat',
+                      envVars: [containerEnvVar(key: 'DOCKER_HOST', value: "unix:///var/run/docker.sock")],
+                      privileged: true)
+  ],
+  volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
+  nodeSelector: 'role=workers'
 ) {
   node(label) {
-    def image
+    container('docker'){
+      def image
 
-    stage('Checkout Code') {
-      cleanWs()
-      checkout scm
-    }
+      stage('Checkout Code') {
+        cleanWs()
+        checkout scm
+      }
 
-    stage('Build'){
-      image = docker.build("steampunkfoundry/mvn-jdk-node:mvn${mvn_version}-openjdk${jdk_version}-node${node_version}", "--build-arg mvn_version=${params.mvn_version} --build-arg jdk_version=${params.jdk_version} --build-arg node_version=${params.node_version} mvn-jdk-node")
+      stage('Build'){
+        image = docker.build("steampunkfoundry/mvn-jdk-node:mvn${mvn_version}-openjdk${jdk_version}-node${node_version}", "--build-arg mvn_version=${params.mvn_version} --build-arg jdk_version=${params.jdk_version} --build-arg node_version=${params.node_version} mvn-jdk-node")
+      }
     }
   }
 }
