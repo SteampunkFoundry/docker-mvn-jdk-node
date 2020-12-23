@@ -8,15 +8,20 @@ properties([
   ])
 ])
 
-node(label) {
-  def image
+podTemplate(
+    label: label,
+    nodeSelector: 'role=workers'
+) {
+  node(label) {
+    def image
 
-  stage('Checkout Code') {
-    cleanWs()
-    checkout scm
-  }
+    stage('Checkout Code') {
+      cleanWs()
+      checkout scm
+    }
 
-  stage('Build'){
-    image = docker.build("steampunkfoundry/mvn-jdk-node:mvn${mvn_version}-openjdk${jdk_version}-node${node_version}", "--build-arg mvn_version=${params.mvn_version} --build-arg jdk_version=${params.jdk_version} --build-arg node_version=${params.node_version} mvn-jdk-node")
+    stage('Build'){
+      image = docker.build("steampunkfoundry/mvn-jdk-node:mvn${mvn_version}-openjdk${jdk_version}-node${node_version}", "--build-arg mvn_version=${params.mvn_version} --build-arg jdk_version=${params.jdk_version} --build-arg node_version=${params.node_version} mvn-jdk-node")
+    }
   }
 }
