@@ -12,7 +12,7 @@ podTemplate(
   label: label,
   containers: [
     containerTemplate(name: 'docker',
-                      image: 'docker:latest',
+                      image: 'docker:19.03',
                       ttyEnabled: true,
                       command: 'cat',
                       envVars: [containerEnvVar(key: 'DOCKER_HOST', value: "unix:///var/run/docker.sock")],

@@ -6,9 +6,4 @@ FROM maven:${mvn_version}-jdk-${jdk_version}
 ENV NODE_VERSION=${node_version:-15.4.0}
 
 RUN set -ex \
-    && cat /etc/resolv.conf \
-    && ls -l /etc/resolv.conf \
-    && routel \
-    && ip a \
-    && echo ip addr show eth0 \
     && ping -n 2 deb.debian.org
