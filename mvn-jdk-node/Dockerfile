@@ -3,9 +3,6 @@ ARG jdk_version=8
 ARG node_version=15.4.0
 FROM maven:${mvn_version}-jdk-${jdk_version}
 
-# DL4006 Set the SHELL option -o pipefail before RUN with a pipe in it.
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
