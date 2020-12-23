@@ -19,7 +19,7 @@ podTemplate(
                       privileged: true)
   ],
   volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
-  nodeSelector: 'role=workers'
+  nodeSelector: 'role=infra'
 ) {
   node(label) {
     container('docker'){
