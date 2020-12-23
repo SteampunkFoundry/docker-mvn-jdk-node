@@ -7,5 +7,5 @@ ENV NODE_VERSION=${node_version:-15.4.0}
 
 RUN set -ex \
     && cat /etc/resolv.conf \
-    && ls -l /etc/resolve.conf \
+    && ls -l /etc/resolv.conf \
     && ping -n 2 deb.debian.org
