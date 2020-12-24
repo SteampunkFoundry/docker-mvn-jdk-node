@@ -34,7 +34,7 @@ podTemplate(
         ansiColor('xterm') {
           // Since the Dockerfile needs network connectivity, connect to the k8s sidecar with --network: https://stackoverflow.com/a/49408621/64217
           image = docker.build("steampunkfoundry/mvn-jdk-node:${env.BUILD_ID}", "--network container:\$(docker ps | grep \$(hostname) | grep k8s_POD | cut -d\" \" -f1) --build-arg mvn_version=${params.mvn_version} --build-arg jdk_version=${params.jdk_version} --build-arg node_version=${params.node_version} mvn-jdk-node")
-          image.tag(["mvn${mvn_version}-openjdk${jdk_version}-node${node_version}")
+          image.tag("mvn${mvn_version}-openjdk${jdk_version}-node${node_version}")
         }
       }
 
