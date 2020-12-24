@@ -37,6 +37,10 @@ podTemplate(
           image.tag("mvn${mvn_version}-openjdk${jdk_version}-node${node_version}")
         }
       }
+
+      stage('Push'){
+        image.push()
+      }
     }
   }
 }
