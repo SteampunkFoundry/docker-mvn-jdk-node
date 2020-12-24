@@ -22,7 +22,7 @@ podTemplate(
   nodeSelector: 'role=infra'
 ) {
   node(label) {
-    container('docker'){
+    container('docker') {
       def image
 
       stage('Checkout Code') {
@@ -39,7 +39,9 @@ podTemplate(
       }
 
       stage('Push'){
-        image.push()
+        docker.withRegistry("https://registry.hub.docker.com", "ggotimer-docker-hub") {
+          image.push()
+        }
       }
     }
   }
