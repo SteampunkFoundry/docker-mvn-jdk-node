@@ -53,8 +53,8 @@ podTemplate(
           ansiColor('xterm') {
             sh "printenv"
             sh "wget -nv ${env.KLAR_URL} -O ./klar && chmod +x ./klar"
-            sh "CLAIR_OUTPUT=${param.clair_output} FORMAT_OUTPUT=table ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.html || true"
-            sh "CLAIR_OUTPUT=${param.clair_output} FORMAT_OUTPUT=json ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
+            sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=table ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.html || true"
+            sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=json ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
             archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.html', onlyIfSuccessful: false
             archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.json', onlyIfSuccessful: false
           }
