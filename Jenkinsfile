@@ -43,20 +43,21 @@ podTemplate(
         }
 
         stage('Push') {
-          docker.withRegistry("https://registry.hub.docker.com", "ggotimer-docker-hub") {
+          docker.withRegistry('https://container.dhsice.name', 'nexuslogin') {
             image.push("${env.BUILD_ID}")
             image.push("latest")
           }
         }
 
         stage('Scan') {
-          ansiColor('xterm') {
-            sh "printenv"
-            sh "wget -nv ${env.KLAR_URL} -O ./klar && chmod +x ./klar"
-            sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=table ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.html || true"
-            sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=json ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
-            archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.html', onlyIfSuccessful: false
-            archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.json', onlyIfSuccessful: false
+          withCredentials([usernamePassword(credentialsId: 'nexuslogin', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+            ansiColor('xterm') {
+              sh "wget -nv ${env.KLAR_URL} -O ./klar && chmod +x ./klar"
+              sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=table DOCKER_USER=${DOCKER_USER} DOCKER_PASSWORD=${DOCKER_PASSWORD} ./klar container.dhsice.name/steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.txt || true"
+              sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=json DOCKER_USER=${DOCKER_USER} DOCKER_PASSWORD=${DOCKER_PASSWORD} ./klar container.dhsice.name/steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
+              archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.txt', onlyIfSuccessful: false
+              archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.json', onlyIfSuccessful: false
+            }
           }
         }
 
