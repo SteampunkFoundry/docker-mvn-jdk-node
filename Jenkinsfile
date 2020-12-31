@@ -27,6 +27,8 @@ podTemplate(
     withEnv(["CLAIR_ADDR=${env.CLAIR_ADDR}"]) {
       container('docker') {
         def image
+        def branch_tag = env.BRANCH_NAME.replaceAll("[^a-zA-Z0-9]","").take(16).toLowerCase();
+        def build_tag = "${branch_tag}-${env.BUILD_ID}"
 
         stage('Checkout Code') {
           cleanWs()
@@ -36,7 +38,7 @@ podTemplate(
         stage('Build') {
           ansiColor('xterm') {
             // Since the Dockerfile needs network connectivity, connect to the k8s sidecar with --network: https://stackoverflow.com/a/49408621/64217
-            image = docker.build("steampunkfoundry/mvn-jdk-node:${env.BUILD_ID}", "--network container:\$(docker ps | grep \$(hostname) | grep k8s_POD | cut -d\" \" -f1) --build-arg mvn_version=${params.mvn_version} --build-arg jdk_version=${params.jdk_version} --build-arg node_version=${params.node_version} mvn-jdk-node")
+            image = docker.build("steampunkfoundry/mvn-jdk-node:${build_tag}", "--network container:\$(docker ps | grep \$(hostname) | grep k8s_POD | cut -d\" \" -f1) --build-arg mvn_version=${params.mvn_version} --build-arg jdk_version=${params.jdk_version} --build-arg node_version=${params.node_version} mvn-jdk-node")
             image.tag("mvn${mvn_version}-openjdk${jdk_version}-node${node_version}")
             image.tag("latest")
           }
@@ -44,7 +46,7 @@ podTemplate(
 
         stage('Push') {
           docker.withRegistry('https://container.dhsice.name', 'nexuslogin') {
-            image.push("${env.BUILD_ID}")
+            image.push(build_tag)
             image.push("latest")
           }
         }
@@ -53,8 +55,8 @@ podTemplate(
           withCredentials([usernamePassword(credentialsId: 'nexuslogin', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
             ansiColor('xterm') {
               sh "wget -nv ${env.KLAR_URL} -O ./klar && chmod +x ./klar"
-              sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=table DOCKER_USER=${DOCKER_USER} DOCKER_PASSWORD=${DOCKER_PASSWORD} ./klar container.dhsice.name/steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.txt || true"
-              sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=json DOCKER_USER=${DOCKER_USER} DOCKER_PASSWORD=${DOCKER_PASSWORD} ./klar container.dhsice.name/steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
+              sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=table DOCKER_USER=${DOCKER_USER} DOCKER_PASSWORD=${DOCKER_PASSWORD} ./klar container.dhsice.name/steampunkfoundry/mvn-jdk-node:${build_tag} | tee klar-steampunkfoundry-mvn-jdk-node-${build_tag}.txt || true"
+              sh "CLAIR_OUTPUT=${env.clair_output} FORMAT_OUTPUT=json DOCKER_USER=${DOCKER_USER} DOCKER_PASSWORD=${DOCKER_PASSWORD} ./klar container.dhsice.name/steampunkfoundry/mvn-jdk-node:${build_tag} > klar-steampunkfoundry-mvn-jdk-node-${build_tag}.json || true"
               archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.txt', onlyIfSuccessful: false
               archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.json', onlyIfSuccessful: false
             }
