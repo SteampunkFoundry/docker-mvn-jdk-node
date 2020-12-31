@@ -42,8 +42,8 @@ podTemplate(
 
       stage('Push') {
         docker.withRegistry("https://registry.hub.docker.com", "ggotimer-docker-hub") {
-          image.tag("${env.BUILD_ID}")
-          image.tag("latest")
+          image.push("${env.BUILD_ID}")
+          image.push("latest")
         }
       }
 
