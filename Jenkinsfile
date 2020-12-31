@@ -42,7 +42,7 @@ podTemplate(
 
       stage('Scan') {
         ansiColor('xterm') {
-          sh "wget -nv https://github.com/optiopay/klar/releases/download/v${klar_version}/klar-${klar_version}-linux-amd64 -O klar"
+          sh "wget -nv https://github.com/optiopay/klar/releases/download/v${klar_version}/klar-${klar_version}-linux-amd64 -O ./klar && chmod +x ./klar"
           sh "CLAIR_ADDR=ip-10-0-3-252.ec2.internal:30305 FORMAT_OUTPUT=table CLAIR_OUTPUT=Medium ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID}"
         }
       }
