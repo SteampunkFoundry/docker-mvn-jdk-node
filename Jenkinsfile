@@ -5,9 +5,14 @@ properties([
     string(name: 'mvn_version', defaultValue: '3.6.3'),
     string(name: 'jdk_version', defaultValue: '8'),
     string(name: 'node_version', defaultValue: '15.4.0'),
-    string(name: 'klar_version', defaultValue: '2.4.0')
+    choice(name: 'clair_output', choices: ['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical', 'Defcon1'], description: 'Minimum Clair severity?')
   ])
 ])
+
+environment {
+  KLAR_URL = 'https://nexus.dhsice.name/repository/third-party-binaries/klar/klar-2.4.0-linux-amd64'
+  CLAIR_ADDR = 'ip-10-0-3-252.ec2.internal:30618'
+}
 
 podTemplate(
   label: label,
@@ -48,11 +53,15 @@ podTemplate(
       }
 
       stage('Scan') {
+        environment {
+          CLAIR_OUTPUT = param.clair_output
+        }
         ansiColor('xterm') {
-          sh "wget -nv https://nexus.dhsice.name/repository/third-party-binaries/klar/klar-${klar_version}-linux-amd64 -O ./klar && chmod +x ./klar"
-          sh "CLAIR_ADDR=ip-10-0-3-252.ec2.internal:30618 FORMAT_OUTPUT=table CLAIR_OUTPUT=Medium ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} || true"
-          sh "CLAIR_ADDR=ip-10-0-3-252.ec2.internal:30618 FORMAT_OUTPUT=json CLAIR_OUTPUT=Medium ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
-          archiveArtifacts artifacts: 'klar-*.json', onlyIfSuccessful: false
+          sh "wget -nv ${env.KLAR_URL} -O ./klar && chmod +x ./klar"
+          sh "FORMAT_OUTPUT=table ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.html || true"
+          sh "FORMAT_OUTPUT=json ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
+          archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.json', onlyIfSuccessful: false
+          archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.html', onlyIfSuccessful: false
         }
       }
 
