@@ -5,8 +5,8 @@ properties([
     string(name: 'mvn_version', defaultValue: '3.6.3'),
     string(name: 'jdk_version', defaultValue: '8'),
     string(name: 'node_version', defaultValue: '15.4.0'),
-    choice(name: 'clair_output', choices: ['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical', 'Defcon1'],
-           defaultValue: 'Medium', description: 'Minimum Clair severity?')
+    choice(name: 'clair_output', choices: ['Medium', 'Unknown', 'Negligible', 'Low', 'High', 'Critical', 'Defcon1'],
+           description: 'Minimum Clair severity?')
   ])
 ])
 
@@ -51,6 +51,7 @@ podTemplate(
 
         stage('Scan') {
           ansiColor('xterm') {
+            sh "printenv"
             sh "wget -nv ${env.KLAR_URL} -O ./klar && chmod +x ./klar"
             sh "CLAIR_OUTPUT=${param.clair_output} FORMAT_OUTPUT=table ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.html || true"
             sh "CLAIR_OUTPUT=${param.clair_output} FORMAT_OUTPUT=json ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
