@@ -1,6 +1,3 @@
-def klar_url = 'https://nexus.dhsice.name/repository/third-party-binaries/klar/klar-2.4.0-linux-amd64'
-def clair_addr = 'ip-10-0-3-252.ec2.internal:30618'
-
 def label = "ImageBuildPod-${UUID.randomUUID().toString()}"
 
 properties([
@@ -8,7 +5,8 @@ properties([
     string(name: 'mvn_version', defaultValue: '3.6.3'),
     string(name: 'jdk_version', defaultValue: '8'),
     string(name: 'node_version', defaultValue: '15.4.0'),
-    choice(name: 'clair_output', choices: ['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical', 'Defcon1'], description: 'Minimum Clair severity?')
+    choice(name: 'clair_output', choices: ['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical', 'Defcon1'],
+           defaultValue: 'Medium', description: 'Minimum Clair severity?')
   ])
 ])
 
@@ -26,7 +24,7 @@ podTemplate(
   nodeSelector: 'role=infra'
 ) {
   node(label) {
-    withEnv(["CLAIR_ADDR=${clair_addr}", "CLAIR_OUTPUT=${param.clair_output}"]) {
+    withEnv(["CLAIR_ADDR=${env.CLAIR_ADDR}"]) {
       container('docker') {
         def image
 
@@ -53,11 +51,11 @@ podTemplate(
 
         stage('Scan') {
           ansiColor('xterm') {
-            sh "wget -nv ${klar_url} -O ./klar && chmod +x ./klar"
-            sh "FORMAT_OUTPUT=table ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.html || true"
-            sh "FORMAT_OUTPUT=json ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
-            archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.json', onlyIfSuccessful: false
+            sh "wget -nv ${env.KLAR_URL} -O ./klar && chmod +x ./klar"
+            sh "CLAIR_OUTPUT=${param.clair_output} FORMAT_OUTPUT=table ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} | tee klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.html || true"
+            sh "CLAIR_OUTPUT=${param.clair_output} FORMAT_OUTPUT=json ./klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID} > klar-steampunkfoundry-mvn-jdk-node-${env.BUILD_ID}.json || true"
             archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.html', onlyIfSuccessful: false
+            archiveArtifacts artifacts: 'klar-steampunkfoundry-mvn-jdk-node*.json', onlyIfSuccessful: false
           }
         }
 
