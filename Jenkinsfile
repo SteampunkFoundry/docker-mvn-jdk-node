@@ -47,7 +47,7 @@ podTemplate(
 
     stage('Scan'){
       container('klar') {
-        withCredentials(usernamePassword(credentialsId: 'ggotimer-docker-hub', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')) {
+        withCredentials([usernamePassword(credentialsId: 'ggotimer-docker-hub', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
           ansiColor('xterm') {
             sh "CLAIR_ADDR=http://ip-10-0-3-252.ec2.internal:30305 FORMAT_OUTPUT=table CLAIR_OUTPUT=Medium /klar steampunkfoundry/mvn-jdk-node:${env.BUILD_ID}"
           }
