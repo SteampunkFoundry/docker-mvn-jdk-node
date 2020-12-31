@@ -27,7 +27,7 @@ podTemplate(
     withEnv(["CLAIR_ADDR=${env.CLAIR_ADDR}"]) {
       container('docker') {
         def image
-        def branch_tag = env.BRANCH_NAME.replaceAll("[^a-zA-Z0-9]","").take(16).toLowerCase();
+        def branch_tag = env.BRANCH_NAME.replaceAll("/","-").replaceAll("[^-a-zA-Z0-9]","").take(32).toLowerCase();
         def build_tag = "${branch_tag}-${env.BUILD_ID}"
 
         stage('Checkout Code') {
