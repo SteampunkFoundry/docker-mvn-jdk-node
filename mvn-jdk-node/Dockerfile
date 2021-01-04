@@ -1,15 +1,11 @@
 ARG mvn_version=3.6.3
 ARG jdk_version=8
 FROM maven:${mvn_version}-openjdk-${jdk_version}
-ARG mvn_version
-ARG jdk_version
 ARG node_version=15.4.0
 
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
-ENV MVN_VERSION=${mvn_version}
-ENV JDK_VERSION=${jdk_version}
 ENV NODE_VERSION=${node_version}
 
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
