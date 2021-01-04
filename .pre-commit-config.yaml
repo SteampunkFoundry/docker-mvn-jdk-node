@@ -1,0 +1,14 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.3.0
+    hooks:
+    -   id: check-case-conflict
+    -   id: end-of-file-fixer
+-   repo: https://github.com/IamTheFij/docker-pre-commit
+    rev: v2.0.0
+    hooks:
+    -   id: hadolint
+-   repo: https://github.com/markdownlint/markdownlint
+    rev: 02832ed3bc0681e72117663c6f8802ce878bf908
+    hooks:
+    -   id: markdownlint_docker
