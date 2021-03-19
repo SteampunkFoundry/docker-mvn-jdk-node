@@ -6,6 +6,7 @@ FROM maven:${mvn_version}-openjdk-${jdk_version}
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
+ARG node_version=15.4.0
 ENV NODE_VERSION=${node_version:-15.4.0}
 
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
