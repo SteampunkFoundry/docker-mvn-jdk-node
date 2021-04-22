@@ -1,7 +1,7 @@
-ARG mvn_version=3.6.3
-ARG jdk_version=8
+ARG mvn_version=3.8.1
+ARG jdk_version=11
 FROM maven:${mvn_version}-openjdk-${jdk_version}
-ARG node_version=15.4.0
+ARG node_version=16.0.0
 
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
@@ -20,12 +20,12 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     esac \
     && set -ex \
     # libatomic1 for arm
-    && apt-get update && apt-get install -y ca-certificates curl wget gnupg dirmngr xz-utils libatomic1 --no-install-recommends \
+    && apt-get update && apt-get dist-upgrade -y && apt-get install -y ca-certificates curl wget gnupg dirmngr xz-utils libatomic1 --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && for key in \
       4ED778F539E3634C779C87C6D7062848A1AB005C \
       94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-      1C050899334244A8AF75E53792EF661D867B9DFA \
+      74F12602B6F1C4E913FAA37AD3A89613643B6201 \
       71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
       C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
