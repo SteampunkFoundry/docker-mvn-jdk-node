@@ -1,7 +1,7 @@
-ARG mvn_version=3.8.1
-ARG jdk_version=11
+ARG mvn_version=3.8.5
+ARG jdk_version=17
 FROM maven:${mvn_version}-openjdk-${jdk_version}
-ARG node_version=16.0.0
+ARG node_version=16.15.0
 
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node

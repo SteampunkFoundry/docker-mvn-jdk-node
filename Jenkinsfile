@@ -2,9 +2,9 @@ def label = "ImageBuildPod-${UUID.randomUUID().toString()}"
 
 properties([
   parameters([
-    string(name: 'mvn_version', defaultValue: '3.8.1'),
-    string(name: 'jdk_version', defaultValue: '11'),
-    string(name: 'node_version', defaultValue: '16.0.0'),
+    string(name: 'mvn_version', defaultValue: '3.8.7'),
+    string(name: 'jdk_version', defaultValue: '17'),
+    string(name: 'node_version', defaultValue: '16.15.0'),
     choice(name: 'clair_output', choices: ['Medium', 'Unknown', 'Negligible', 'Low', 'High', 'Critical', 'Defcon1'],
            description: 'Minimum Clair severity?')
   ])
@@ -14,7 +14,7 @@ podTemplate(
   label: label,
   containers: [
     containerTemplate(name: 'docker',
-                      image: 'docker:20.10.6',
+                      image: 'docker:20.10.16',
                       ttyEnabled: true,
                       command: 'cat',
                       envVars: [containerEnvVar(key: 'DOCKER_HOST', value: "unix:///var/run/docker.sock")],
